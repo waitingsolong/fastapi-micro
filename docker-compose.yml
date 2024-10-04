@@ -4,21 +4,21 @@ services:
   main-app:
     build: .
     depends_on:
-      - news_microservice
-      - users_microservice
+      - news
+      - users
     ports:
       - "8000:8000"
     restart: always
-    command: uvicorn app.main:app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
 
-  news_microservice:
+  news:
     build: .
-    command: python app/microservices/news_microservice/main.py
+    command: python -m app.microservices.news_microservice.main
     ports:
       - "50051:50051"
 
-  users_microservice:
+  users:
     build: .
-    command: python app/microservices/users_microservice/main.py
+    command: python -m app.microservices.users_microservice.main
     ports:
       - "50052:50052"

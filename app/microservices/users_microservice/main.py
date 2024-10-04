@@ -1,7 +1,7 @@
 import grpc
 from concurrent import futures
-import users_pb2
-import users_pb2_grpc
+from app.microservices.users_microservice import users_pb2
+from app.microservices.users_microservice import users_pb2_grpc
 
 
 class UsersService(users_pb2_grpc.UsersServiceServicer):

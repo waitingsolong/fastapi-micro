@@ -1,7 +1,8 @@
 import grpc
 from concurrent import futures
-import news_pb2
-import news_pb2_grpc
+from app.microservices.news_microservice import news_pb2
+from app.microservices.news_microservice import news_pb2_grpc
+
 
 class NewsService(news_pb2_grpc.NewsServiceServicer):
     def GetNews(self, request, context):
