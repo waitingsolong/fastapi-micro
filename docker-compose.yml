@@ -1,0 +1,24 @@
+version: "3.8"
+
+services:
+  main-app:
+    build: .
+    depends_on:
+      - news_microservice
+      - users_microservice
+    ports:
+      - "8000:8000"
+    restart: always
+    command: uvicorn app.main:app
+
+  news_microservice:
+    build: .
+    command: python app/microservices/news_microservice/main.py
+    ports:
+      - "50051:50051"
+
+  users_microservice:
+    build: .
+    command: python app/microservices/users_microservice/main.py
+    ports:
+      - "50052:50052"

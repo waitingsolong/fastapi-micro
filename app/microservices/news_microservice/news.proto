@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package news;
+
+// The News service definition.
+service NewsService {
+  rpc GetNews(NewsRequest) returns (NewsResponse);
+}
+
+// The request message for the GetNews RPC.
+message NewsRequest {}
+
+// The response message containing the news message.
+message NewsResponse {
+  string message = 1;
+}
