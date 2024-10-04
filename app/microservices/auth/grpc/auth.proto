@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package auth;
+
+// The Auth service definition.
+service AuthService {
+  rpc GetAuth(AuthRequest) returns (AuthResponse);
+}
+
+// The request message for the GetAuth RPC.
+message AuthRequest {}
+
+// The response message containing the Auth message.
+message AuthResponse {
+  string message = 1;
+}
