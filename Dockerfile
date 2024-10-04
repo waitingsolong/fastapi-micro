@@ -7,7 +7,7 @@ RUN mkdir /kokoc
 
 WORKDIR /kokoc
 
-COPY poetry_kokoc/pyproject.toml poetry_kokoc/poetry.lock ./
+COPY pyproject.toml poetry.lock ./
 
 RUN apt-get update && apt-get install -y \
     build-essential \
