@@ -1,13 +1,20 @@
 from pydantic import BaseModel, EmailStr
 
-class Token(BaseModel):
+class TokenResponse(BaseModel):
     access_token: str
+    refresh_token: str
     token_type: str
+
+class RefreshRequest(BaseModel):
+    refresh_token: str
+
+class RoleAssignRequest(BaseModel):
+    username: str
+    role: str
 
 class TokenData(BaseModel):
     username: str
     role: str
-
 
 class UserBase(BaseModel):
     username: str
@@ -17,10 +24,15 @@ class UserCreate(UserBase):
     password: str
 
 class UserResponse(UserBase):
-    id: int
+    role: str
 
-    class Config:
-        orm_mode = True
+class RegisterRequest(UserCreate): 
+    pass
+
+class RegisterResponse(UserResponse): 
+    access_token: str
+    refresh_token: str
+    token_type: str = "bearer"
 
 class LoginRequest(BaseModel):
     username: str

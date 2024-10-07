@@ -1,8 +1,9 @@
 from Crypto.Hash import SHA256
 from Crypto.Protocol.KDF import PBKDF2
 from Crypto.Random import get_random_bytes
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional
+from fastapi import HTTPException
 from jose import JWTError, jwt
 from .config import settings
 
@@ -27,9 +28,29 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     encoded_jwt = jwt.encode(to_encode, settings.SECRET, algorithm=settings.ALGORITHM)
     return encoded_jwt
 
+def create_refresh_token(data: dict, expires_delta: Optional[timedelta] = None):
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.utcnow() + expires_delta
+    else:
+        expire = datetime.utcnow() + timedelta(days=7) 
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, settings.SECRET, algorithm=settings.ALGORITHM)
+    return encoded_jwt
+
 def verify_token(token: str):
     try:
-        payload = jwt.decode(token, settings.SECRET, algorithms=[settings.ALGORITHM])
-        return payload
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        username: str = payload.get("sub")
+        role: str = payload.get("role")
+        if username is None or role is None:
+            raise JWTError("Invalid token")
+        
+        exp = payload.get("exp")
+        if exp is None or datetime.fromtimestamp(exp, tz=timezone.utc) < datetime.now(tz=timezone.utc):
+            raise JWTError("Token expired")
+        
+        return {"sub": username, "role": role}
+
     except JWTError:
-        return None
+        raise HTTPException(status_code=401, detail="Could not validate credentials")

@@ -145,7 +145,7 @@ def create_copyme_file():
     hostname: bar  
     container_name: bar  
     ports:  
-      - "50052:50051"  
+      - "50051:50051"  
     env_file:  
       - bar/.env  
     volumes:  

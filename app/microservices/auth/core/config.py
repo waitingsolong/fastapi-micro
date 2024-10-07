@@ -1,28 +1,34 @@
-from pydantic import BaseSettings, SecretStr, field_validator
-from typing import Optional, Dict, Any
+import logging
+from pathlib import Path
+from typing import Optional
+from pydantic import SecretStr
+from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     SECRET: str = "SECRET"
-    ALGORITHM = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES = 30
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 
-    POSTGRES_DB: str
-    POSTGRES_HOST: str
-    POSTGRES_USER: str
-    POSTGRES_PASSWORD: SecretStr
+    POSTGRES_DB: Optional[str] = None
+    POSTGRES_HOST: Optional[str] = None
+    POSTGRES_USER: Optional[str] = None
+    POSTGRES_PASSWORD: Optional[SecretStr] = None
     POSTGRES_URI: Optional[str] = None
+    
+    # defaulted 
+    DISABLE_AUTH: bool = True
 
-    @field_validator("POSTGRES_URI", pre=True)
-    def validate_postgres_conn(cls, v: Optional[str], values: Dict[str, Any]) -> str:
-        if isinstance(v, str):
-            return v
-        password: SecretStr = values.get("POSTGRES_PASSWORD", SecretStr(""))
-        return "{scheme}://{user}:{password}@{host}/{db}".format(
-            scheme="postgresql+asyncpg",
-            user=values.get("POSTGRES_USER"),
-            password=password.get_secret_value(),
-            host=values.get("POSTGRES_HOST"),
-            db=values.get("POSTGRES_DB"),
-        )
+    class Config:
+        env_file = Path(__file__).resolve().parent.parent / '.env'
 
-settings = Settings
+def init_settings():
+    settings = Settings()
+    if settings.POSTGRES_URI is None and all(
+        [settings.POSTGRES_USER, settings.POSTGRES_PASSWORD, settings.POSTGRES_HOST, settings.POSTGRES_DB]
+    ):
+        settings.POSTGRES_URI = f"postgresql+asyncpg://{settings.POSTGRES_USER}:{settings.POSTGRES_PASSWORD.get_secret_value()}@{settings.POSTGRES_HOST}/{settings.POSTGRES_DB}"
+    elif not settings.POSTGRES_URI:
+        logging.error("DB is not initialized. Please provide POSTGRES_URI in .env file")
+    return settings
+
+settings = init_settings()

@@ -2,22 +2,34 @@ version: "3.8"
 
 services:
   auth-service:
-    build: .
+    container_name: auth
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    command: python -m app.microservices.auth.main
+    expose:
+      - "50051"
+    ports:
+      - "8000:8000"
     depends_on:
       - auth-db
-    ports:
-      - "8000:8000"  
-      - "50053:50053"
-    command: python -m app.microservices.auth.main
+    volumes:
+      - ./migrations/versions:/migrations/versions
 
   auth-db:
     image: postgres:16
+    container_name: auth-db
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
     volumes:
-      - auth-db-data:/var/lib/postgresql/data
-
-
-volumes:
-  auth-db-data:
+      - ./data/nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - auth-service

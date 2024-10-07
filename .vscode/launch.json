@@ -1,0 +1,16 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Auth",
+        "type": "debugpy",
+        "request": "launch",
+        "program": "${workspaceFolder}/app/microservices/auth/main.py",
+        "console": "integratedTerminal",
+        "envFile": "${workspaceFolder}/app/microservices/auth/.env",
+        "cwd": "${workspaceFolder}",
+        "justMyCode": true,
+      }
+    ]
+  }
+  

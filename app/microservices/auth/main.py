@@ -1,27 +1,27 @@
-import asyncio
+import threading
+from app.utils import handlers
 from fastapi import FastAPI
 from app.microservices.auth.api.v1 import auth, healthcheck
 from app.microservices.auth.grpc.server import serve as grpc_serve
 
 app = FastAPI()
 
-app.include_router(auth.router, prefix="/v1")  
-app.include_router(healthcheck.router, prefix="/v1")
+app.include_router(auth.router)
+app.include_router(healthcheck.router)
 
-async def start_fastapi():
+def start_fastapi():
     import uvicorn
-    config = uvicorn.Config(app, host="0.0.0.0", port=8000)
-    server = uvicorn.Server(config)
-    await server.serve()
+    uvicorn.run(app, host="0.0.0.0", port=8000)
 
-async def start_grpc():
-    grpc_serve() 
+def start_grpc():
+    grpc_serve()
 
 if __name__ == "__main__":
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(
-        asyncio.gather(
-            start_fastapi(),
-            start_grpc()
-        )
-    )
+    fastapi_thread = threading.Thread(target=start_fastapi)
+    grpc_thread = threading.Thread(target=start_grpc)
+
+    fastapi_thread.start()
+    grpc_thread.start()
+
+    fastapi_thread.join()
+    grpc_thread.join()
