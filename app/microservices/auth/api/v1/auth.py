@@ -1,15 +1,17 @@
 from fastapi import APIRouter, Depends, HTTPException
-from fastapi.security import OAuth2PasswordBearer
 from datetime import timedelta
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.microservices.auth.core.db import get_db   
-from app.microservices.auth.core.security import create_access_token, create_refresh_token, get_password_hash, verify_password, verify_token
-from app.microservices.auth.schemas.auth import RegisterRequest, RegisterResponse, UserCreate, LoginRequest, TokenResponse, TokenData, RefreshRequest, RoleAssignRequest
-from app.microservices.auth.repos.user import get_user_by_username, create_user
+from app.microservices.auth.core.deps import get_token_data
+from app.microservices.auth.core.security import create_access_token, create_refresh_token, verify_password, verify_token
+from app.microservices.auth.schemas.auth import RegisterRequest, RegisterResponse, LoginRequest, TokenResponse, TokenData, RefreshRequest, RoleAssignRequest
+from app.microservices.auth.services.user import get_user_by_username, create_user
 from app.microservices.auth.schemas.auth import UserResponse
-from app.microservices.auth.core.config import settings
 
-router = APIRouter()
+router = APIRouter(
+    prefix="/auth",
+    tags=["auth"]
+)
 
 @router.post("/register", response_model=RegisterResponse)
 async def register(user: RegisterRequest, db: AsyncSession = Depends(get_db)):
@@ -98,8 +100,9 @@ async def assign_role(role_request: RoleAssignRequest, token: dict, db: AsyncSes
     return {"message": f"Role '{role_request.role}' assigned to user '{role_request.username}'"}
 
 
+# ASSERT: username "admin" registered with "admin" role
 @router.get("/me", response_model=UserResponse)
-async def check_me(token: dict, db: AsyncSession = Depends(get_db)):
+async def check_me(token: str = Depends(get_token_data), db: AsyncSession = Depends(get_db)):
     user = await get_user_by_username(db, username=token["sub"])
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -107,12 +110,6 @@ async def check_me(token: dict, db: AsyncSession = Depends(get_db)):
     return {"username": user.username, "email": user.email, "role": user.role}
 
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
-
 @router.post("/validate", response_model=TokenData)
-async def validate_auth(token: str = Depends(oauth2_scheme)):
-    if settings.DISABLE_AUTH:
-        return {"username": "admin", "role": "admin"}
-
-    token_data = verify_token(token)  
+async def validate_auth(token_data: str = Depends(get_token_data)):  
     return {"username": token_data["sub"], "role": token_data["role"]}
