@@ -24,10 +24,10 @@ def start_grpc():
 
 if __name__ == "__main__":
     fastapi_thread = threading.Thread(target=start_fastapi)
-    grpc_thread = threading.Thread(target=start_grpc)
+    #grpc_thread = threading.Thread(target=start_grpc)
 
     fastapi_thread.start()
-    grpc_thread.start()
+    #grpc_thread.start()
 
     fastapi_thread.join()
-    grpc_thread.join()
+    #grpc_thread.join()

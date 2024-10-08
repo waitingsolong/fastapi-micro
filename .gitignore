@@ -1,5 +1,6 @@
 tmp/ 
 versions/
+.env
 
 .vscode/*
 !.vscode/settings.json

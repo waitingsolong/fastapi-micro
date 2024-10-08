@@ -7,23 +7,24 @@ services:
       context: .
       dockerfile: Dockerfile
     command: python -m app.microservices.auth.main
-    expose:
-      - "50051"
+    # expose:
+    #   - "50051"
     ports:
       - "8000:8000"
     depends_on:
-      - auth-db
+      - db
     volumes:
       - ./migrations/versions:/migrations/versions
 
-  auth-db:
+  db:
     image: postgres:16
-    container_name: auth-db
+    container_name: db
     ports:
       - "5432:5432"
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
+      POSTGRES_PASSWORD: 
+      POSTGRES_HOST_AUTH_METHOD: trust
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s

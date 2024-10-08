@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from datetime import timedelta
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.microservices.auth.core.db import get_db   
+from app.utils.db import get_db   
 from app.microservices.auth.core.deps import get_token_data
 from app.microservices.auth.core.security import create_access_token, create_refresh_token, verify_password, verify_token
 from app.microservices.auth.schemas.auth import RegisterRequest, RegisterResponse, LoginRequest, TokenResponse, TokenData, RefreshRequest, RoleAssignRequest

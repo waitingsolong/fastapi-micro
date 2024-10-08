@@ -1,5 +1,5 @@
 from sqlalchemy import Column, String, Integer
-from app.microservices.auth.core.db import Base
+from app.utils.db import Base
 from app.microservices.auth.core.roles import Role
 
 class User(Base):

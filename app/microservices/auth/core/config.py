@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     POSTGRES_HOST: Optional[str] = None
     POSTGRES_USER: Optional[str] = None
     POSTGRES_PASSWORD: Optional[SecretStr] = None
-    POSTGRES_URI: Optional[str] = "postgresql+asyncpg://postgres:password@auth-db/postgres"
+    POSTGRES_URI: Optional[str] = "postgresql+asyncpg://postgres:@db/postgres"
     
     # defaulted 
     DISABLE_AUTH: bool = True
