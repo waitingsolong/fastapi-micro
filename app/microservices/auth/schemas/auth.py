@@ -1,5 +1,4 @@
 from pydantic import BaseModel, EmailStr
-
 from app.microservices.auth.core.roles import Role
 
 class TokenResponse(BaseModel):
@@ -12,14 +11,14 @@ class RefreshRequest(BaseModel):
 
 class RoleAssignRequest(BaseModel):
     username: str
-    role: str
+    role: Role 
 
 class TokenData(BaseModel):
     sub: str
-    role: str
+    role: Role  
 
 class FakeToken(TokenData):
-    def __init__(self, sub: str = "admin", role: str = Role.ADMIN):
+    def __init__(self, sub: str = "admin", role: Role = Role.admin):
         super().__init__(sub=sub, role=role)
 
 class UserBase(BaseModel):
@@ -30,7 +29,7 @@ class UserCreate(UserBase):
     password: str
 
 class UserResponse(UserBase):
-    role: str
+    role: Role  
 
 class RegisterRequest(UserCreate): 
     pass

@@ -1,6 +1,16 @@
-version: "3.8"
-
 services:
+  nginx:
+      image: nginx:latest
+      container_name: nginx
+      ports:
+        - "80:80"
+        - "443:443"
+      volumes:
+        - ./conf/nginx.conf:/etc/nginx/nginx.conf
+        - ./data/cert:/etc/nginx/ssl
+      environment:
+        - SERVER_NAME=${SERVER_NAME}
+
   auth-service:
     container_name: auth
     build: 
@@ -41,3 +51,47 @@ services:
         max-size: "5m"
         max-file: "1"
 
+  news-service:
+    container_name: news
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    command: python -m app.microservices.news.main
+    ports:
+      - "8001:8000"
+    depends_on:
+      - mongodb
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "1"
+
+  comments-service:
+    container_name: comments
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    command: python -m app.microservices.comments.main
+    ports:
+      - "8002:8000"
+    depends_on:
+      - mongodb
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "1"
+
+  mongodb:
+    image: mongo:7.0
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./data/mongo:/data/db
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "1"

@@ -1,7 +1,7 @@
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select  # Import select for async querying
-from app.microservices.auth.core.roles import Role
+from sqlalchemy.future import select  
+from app.microservices.auth.core.roles import DEFAULT_ROLE
 from app.microservices.auth.models.user import User
 from app.microservices.auth.schemas.auth import UserCreate
 from app.microservices.auth.core.security import get_password_hash
@@ -34,7 +34,7 @@ async def create_user(db: AsyncSession, user: UserCreate):
         username=user.username,
         email=user.email,
         hashed_password=get_password_hash(user.password),
-        role=Role.DEFAULT,
+        role=DEFAULT_ROLE,
     )
     
     db.add(db_user)

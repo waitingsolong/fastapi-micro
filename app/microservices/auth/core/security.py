@@ -5,6 +5,8 @@ from datetime import datetime, timedelta, timezone
 from typing import Optional
 from fastapi import HTTPException
 from jose import JWTError, jwt
+
+from app.microservices.auth.core.roles import Role
 from .config import settings
 
 def get_password_hash(password: str) -> str:
@@ -42,7 +44,7 @@ def verify_token(token: str):
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
         username: str = payload.get("sub")
-        role: str = payload.get("role")
+        role: Role = payload.get("role")
         if username is None or role is None:
             raise JWTError("Invalid token")
         

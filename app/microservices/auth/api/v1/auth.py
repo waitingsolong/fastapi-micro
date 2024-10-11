@@ -3,10 +3,23 @@ from datetime import timedelta
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.utils.db import get_db   
 from app.microservices.auth.core.deps import get_token_data
-from app.microservices.auth.core.security import create_access_token, create_refresh_token, verify_password, verify_token
-from app.microservices.auth.schemas.auth import RegisterRequest, RegisterResponse, LoginRequest, TokenResponse, TokenData, RefreshRequest, RoleAssignRequest
+from app.microservices.auth.core.security import (
+    create_access_token,
+    create_refresh_token,
+    verify_password,
+    verify_token
+)
+from app.microservices.auth.schemas.auth import (
+    RegisterRequest,
+    RegisterResponse,
+    LoginRequest,
+    TokenResponse,
+    TokenData,
+    RefreshRequest,
+    RoleAssignRequest,
+    UserResponse
+)
 from app.microservices.auth.services.user import get_user_by_username, create_user
-from app.microservices.auth.schemas.auth import UserResponse
 
 router = APIRouter(
     prefix="/auth",
@@ -33,16 +46,15 @@ async def register(user: RegisterRequest, db: AsyncSession = Depends(get_db)):
         expires_delta=refresh_token_expires
     )
 
-    return {
-        "id": new_user.id,
-        "username": new_user.username,
-        "email": new_user.email,
-        "access_token": access_token,
-        "refresh_token": refresh_token,
-        "token_type": "bearer",
-        "role": new_user.role
-    }
-
+    return RegisterResponse(
+        id=new_user.id,
+        username=new_user.username,
+        email=new_user.email,
+        access_token=access_token,
+        refresh_token=refresh_token,
+        token_type="bearer",
+        role=new_user.role
+    )
 
 @router.post("/login", response_model=TokenResponse)
 async def login(user: LoginRequest, db: AsyncSession = Depends(get_db)):
@@ -62,15 +74,14 @@ async def login(user: LoginRequest, db: AsyncSession = Depends(get_db)):
         expires_delta=refresh_token_expires
     )
 
-    return {
-        "access_token": access_token,
-        "refresh_token": refresh_token,
-        "token_type": "bearer"
-    }
-
+    return TokenResponse(
+        access_token=access_token,
+        refresh_token=refresh_token,
+        token_type="bearer"
+    )
 
 @router.post("/refresh", response_model=TokenResponse)
-async def refresh(refresh_request: RefreshRequest, db: AsyncSession = Depends(get_db)):
+async def refresh(refresh_request: RefreshRequest):
     token_data = verify_token(refresh_request.refresh_token)
     if token_data is None:
         raise HTTPException(status_code=401, detail="Invalid token")
@@ -80,14 +91,13 @@ async def refresh(refresh_request: RefreshRequest, db: AsyncSession = Depends(ge
         data={"sub": token_data["sub"], "role": token_data["role"]}, 
         expires_delta=access_token_expires
     )
-    return {
-        "access_token": new_access_token, 
-        "token_type": "bearer"
-    }
-
+    return TokenResponse(
+        access_token=new_access_token, 
+        token_type="bearer"
+    )
 
 @router.post("/assign-role")
-async def assign_role(role_request: RoleAssignRequest, token: dict, db: AsyncSession = Depends(get_db)):
+async def assign_role(role_request: RoleAssignRequest, token: dict = Depends(get_token_data), db: AsyncSession = Depends(get_db)):
     if token.get("role") != "admin":
         raise HTTPException(status_code=403, detail="Only admins can assign roles")
 
@@ -99,17 +109,18 @@ async def assign_role(role_request: RoleAssignRequest, token: dict, db: AsyncSes
     await db.commit()
     return {"message": f"Role '{role_request.role}' assigned to user '{role_request.username}'"}
 
-
-# ASSERT: username "admin" registered with "admin" role
 @router.get("/me", response_model=UserResponse)
-async def check_me(token: str = Depends(get_token_data), db: AsyncSession = Depends(get_db)):
+async def check_me(token: dict = Depends(get_token_data), db: AsyncSession = Depends(get_db)):
     user = await get_user_by_username(db, username=token["sub"])
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    return {"username": user.username, "email": user.email, "role": user.role}
-
+    return UserResponse(
+        username=user.username,
+        email=user.email,
+        role=user.role
+    )
 
 @router.post("/validate", response_model=TokenData)
-async def validate_auth(token_data: str = Depends(get_token_data)):  
-    return {"username": token_data["sub"], "role": token_data["role"]}
+async def validate_auth(token_data: TokenData = Depends(get_token_data)):  
+    return token_data  

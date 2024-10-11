@@ -1,36 +1,29 @@
 import threading
-
 from app.utils.handlers import setup_exception_handlers
 from fastapi import FastAPI
-from app.microservices.auth.api.v1 import auth, healthcheck
-from app.microservices.auth.grpc.server import serve as grpc_serve
+from app.microservices.comments.api.v1 import healthcheck
+from app.microservices.comments.api.v1 import comments
 
-app = FastAPI(docs_url=   '/auth/docs',
-              redoc_url=  '/auth/redoc',
-              openapi_url='/auth/openapi.json')
+app = FastAPI(docs_url=   '/comments/docs',
+              redoc_url=  '/comments/redoc',
+              openapi_url='/comments/openapi.json')
 
 setup_exception_handlers(app)
 
+# # TODO remove
 # from app.microservices.auth.core.mw import AuthMiddleware
 # excluded_paths = ["/auth/login", "/auth/register", "/auth/validate"]
 # app.add_middleware(AuthMiddleware, excluded_paths=excluded_paths)
 
-app.include_router(auth.router)
+app.include_router(comments.router)
+app.include_router(comments.wip_router)
 app.include_router(healthcheck.router)
 
 def start_fastapi():
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
 
-def start_grpc():
-    grpc_serve()
-
 if __name__ == "__main__":
     fastapi_thread = threading.Thread(target=start_fastapi)
-    #grpc_thread = threading.Thread(target=start_grpc)
-
     fastapi_thread.start()
-    #grpc_thread.start()
-
     fastapi_thread.join()
-    #grpc_thread.join()
