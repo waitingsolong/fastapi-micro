@@ -1,7 +1,9 @@
-data/
+data/*
+!data/.gitkeep
 tmp/ 
 versions/
 .env
+nginx.conf
 
 .vscode/*
 !.vscode/settings.json
