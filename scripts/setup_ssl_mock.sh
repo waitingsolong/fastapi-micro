@@ -1,15 +1,10 @@
 #!/bin/bash
 
-# Load environment variables from .env file
 if [ -f ".env" ]; then
   export $(cat .env | xargs)
 fi
 
-if [ "$DEV" = "true" ]; then
-  CERT_PATH="./data/cert"
-else
-  CERT_PATH="/etc/nginx/ssl"
-fi
+CERT_PATH="./data/cert"
 
 sudo mkdir -p $CERT_PATH
 

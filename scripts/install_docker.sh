@@ -1,12 +1,17 @@
 #!/bin/bash
 
 ask_install_docker() {
+    if command -v docker &> /dev/null && command -v docker-compose &> /dev/null; then
+        echo "Docker and Docker Compose are already installed."
+        exit 0
+    fi
+
     while true; do
-        read -p "Do you want to install Docker? (y/n): " yn
+        read -p "Install Docker, Docker Compose? (y/n): " yn
         case $yn in
-            [Yy] ) break;;  # Accepts "y" or "Y"
-            [Nn] ) echo "Docker installation canceled."; exit;;  # Accepts "n" or "N"
-            * ) echo "Please answer 'y' or 'n'.";  # Prompts for correct input
+            [Yy] ) break;; 
+            [Nn] ) echo "Docker installation canceled."; exit;;
+            * ) echo "Please answer 'y' or 'n'.";  
         esac
     done
 }

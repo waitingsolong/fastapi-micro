@@ -4,6 +4,7 @@ from starlette.responses import JSONResponse
 from app.microservices.auth.core.security import verify_token
 from app.microservices.auth.core.config import settings
 
+# mock if you not configured reverse-proxy
 class AuthMiddleware(BaseHTTPMiddleware):
     def __init__(self, app, excluded_paths: list = None):
 
