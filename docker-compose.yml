@@ -11,26 +11,7 @@ services:
       environment:
         - SERVER_NAME=${SERVER_NAME}
 
-  auth-service:
-    container_name: auth
-    build: 
-      context: .
-      dockerfile: Dockerfile
-    command: python -m app.microservices.auth.main
-    # expose:
-    #   - "50051"
-    ports:
-      - "8000:8000"
-    depends_on:
-      - db
-    volumes:
-      - ./migrations/versions:/migrations/versions
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "5m"
-        max-file: "1"
-
+  # databases
   db:
     image: postgres:16
     container_name: db
@@ -45,6 +26,40 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "1"
+
+  mongodb:
+    image: mongo:7.0
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./data/mongo:/data/db
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "1"
+
+  # microservices
+  auth-service:
+    container_name: auth
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    command: python -m app.microservices.auth.main
+    # expose:
+    #   - "50051"
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    volumes:
+      - ./migrations/auth/versions:/migrations/auth/versions
     logging:
       driver: "json-file"
       options:
@@ -83,13 +98,54 @@ services:
         max-size: "5m"
         max-file: "1"
 
-  mongodb:
-    image: mongo:7.0
-    container_name: mongodb
+  media-service:
+    container_name: media
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    command: python -m app.microservices.media.main
     ports:
-      - "27017:27017"
+      - "8003:8000"
+    depends_on:
+      - db
     volumes:
-      - ./data/mongo:/data/db
+      - ./migrations/media/versions:/migrations/media/versions
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "1"
+
+  matches-service:
+    container_name: matches
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    command: python -m app.microservices.matches.main
+    ports:
+      - "8004:8000"
+    depends_on:
+      - db
+    volumes:
+      - ./migrations/matches/versions:/migrations/matches/versions
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "1"
+
+  users-service:
+    container_name: users
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    command: python -m app.microservices.users.main
+    ports:
+      - "8005:8000"
+    depends_on:
+      - db
+    volumes:
+      - ./migrations/users/versions:/migrations/users/versions
     logging:
       driver: "json-file"
       options:

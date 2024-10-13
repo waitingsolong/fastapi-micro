@@ -9,7 +9,7 @@ class NewsCategory(str, Enum):
     transfer_announcements = "transfer_announcements"
     press_releases = "press_releases"
 
-class CreateNewsSchema(BaseModel):
+class CreateNews(BaseModel):
     title: str
     content: str
     category: NewsCategory
@@ -17,7 +17,7 @@ class CreateNewsSchema(BaseModel):
     media: Optional[List[HttpUrl]] = []
     tags: List[str] = []  
 
-class UpdateNewsSchema(BaseModel):
+class UpdateNews(BaseModel):
     title: Optional[str]
     content: Optional[str]
     category: Optional[NewsCategory]

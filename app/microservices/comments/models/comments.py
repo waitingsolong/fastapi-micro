@@ -1,4 +1,5 @@
 import uuid
+from bson import ObjectId
 from pydantic import BaseModel, Field
 from typing import List, Optional
 from datetime import datetime
@@ -15,4 +16,10 @@ class Comment(BaseModel):
     replies: Optional[List[uuid.UUID]] = []
     entity_id: uuid.UUID
     entity_type: str  
+    
+    class Config:
+        allow_population_by_field_name = True
+        json_encoders = {
+            ObjectId: str,
+        }
     

@@ -1,3 +1,4 @@
+from uuid import uuid4
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select  
@@ -15,7 +16,6 @@ async def get_user_by_email(db: AsyncSession, email: str):
     return result.scalars().first()
 
 async def create_user(db: AsyncSession, user: UserCreate):
-    # Проверяем существование username
     existing_user = await get_user_by_username(db, user.username)
     if existing_user:
         raise HTTPException(
@@ -31,6 +31,7 @@ async def create_user(db: AsyncSession, user: UserCreate):
         )
 
     db_user = User(
+        id=uuid4(),
         username=user.username,
         email=user.email,
         hashed_password=get_password_hash(user.password),

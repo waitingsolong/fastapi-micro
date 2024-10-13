@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     POSTGRES_HOST: Optional[str] = None
     POSTGRES_USER: Optional[str] = None
     POSTGRES_PASSWORD: Optional[SecretStr] = None
-    POSTGRES_URI: Optional[str] = "postgresql+asyncpg://postgres:@db/postgres"
+    POSTGRES_URI: Optional[str] = "postgresql+asyncpg://postgres:@db/auth"
     
     # defaulted 
     DISABLE_AUTH: bool = True
@@ -28,7 +28,7 @@ def init_settings():
     ):
         settings.POSTGRES_URI = f"postgresql+asyncpg://{settings.POSTGRES_USER}:{settings.POSTGRES_PASSWORD.get_secret_value()}@{settings.POSTGRES_HOST}/{settings.POSTGRES_DB}"
     elif not settings.POSTGRES_URI:
-        logging.error("DB is not initialized. Please provide POSTGRES_URI in .env file")
+        logging.error("Auth DB is not initialized. Please provide POSTGRES_URI in .env file")
     return settings
 
 settings = init_settings()

@@ -5,9 +5,9 @@
           "name": "Auth",
           "type": "debugpy",
           "request": "launch",
-          "program": "${workspaceFolder}/app/microservices/auth/main.py",
+          "program": "${workspaceFolder}/app/microservices/users/main.py",
           "console": "integratedTerminal",
-          "envFile": "${workspaceFolder}/app/microservices/auth/.env",
+          "envFile": "${workspaceFolder}/app/microservices/users/.env",
           "cwd": "${workspaceFolder}",
           "justMyCode": true,
           "env": {

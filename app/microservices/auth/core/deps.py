@@ -7,6 +7,7 @@ from app.microservices.auth.schemas.auth import FakeToken
 # oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
 async def get_token_data(request: Request):
+    # assert: user admin must persist in db
     if settings.DISABLE_AUTH:
         return FakeToken().model_dump()
     

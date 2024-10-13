@@ -1,13 +1,15 @@
-from sqlalchemy import Column, String, Integer
-from app.utils.db import Base
-from app.microservices.auth.core.roles import DEFAULT_ROLE
+import uuid
+from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Column, Enum, String
+from app.microservices.auth.core.roles import DEFAULT_ROLE, Role
+from app.microservices.auth.utils.db import AuthBase
 
-class User(Base):
+class User(AuthBase):
     __tablename__ = "users"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(UUID(), primary_key=True, default=uuid.uuid4, index=True)
     username = Column(String, unique=True, index=True, nullable=False)
     email = Column(String, unique=True, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
-    role = Column(String, nullable=False, default=DEFAULT_ROLE)
+    role = Column(Enum(Role), nullable=False, default=DEFAULT_ROLE)
     

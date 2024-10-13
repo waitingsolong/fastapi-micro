@@ -9,13 +9,7 @@ app = FastAPI(docs_url=   '/news/docs',
 
 setup_exception_handlers(app)
 
-# # TODO
-# from app.microservices.auth.core.mw import AuthMiddleware
-# excluded_paths = ["/auth/login", "/auth/register", "/auth/validate"]
-# app.add_middleware(AuthMiddleware, excluded_paths=excluded_paths)
-
 app.include_router(news.router)
-app.include_router(news.wip_router)
 app.include_router(healthcheck.router)
 
 def start_fastapi():

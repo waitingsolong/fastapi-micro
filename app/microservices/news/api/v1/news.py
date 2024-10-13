@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Query
 from uuid import UUID
 from typing import List
-from app.microservices.news.schemas.news import CreateNewsSchema, UpdateNewsSchema
+from app.microservices.news.schemas.news import CreateNews, UpdateNews
 from app.microservices.news.models.news import News
 from app.microservices.comments.models.comments import Comment
 from app.utils.models import Reaction
@@ -12,16 +12,12 @@ router = APIRouter(
     prefix="/news",
     tags=["news"]
 )
-wip_router = APIRouter(
-    prefix="/news",
-    tags=["news", "wip"]
-)
 
 async def get_mongo_client():
     from app.utils.mongo import get_collection
     return await get_collection("news")
 
-@wip_router.get("/{news_id}", response_model=News)
+@router.get("/{news_id}", response_model=News)
 async def get_news(news_id: UUID):
     db = await get_mongo_client()
 
@@ -37,8 +33,8 @@ async def get_news(news_id: UUID):
     return news
 
 
-@wip_router.post("/", response_model=News)
-async def create_news(news: CreateNewsSchema):
+@router.post("/", response_model=News)
+async def create_news(news: CreateNews):
     db = await get_mongo_client()
     new_news = News(**news.model_dump())
     result = await db["news"].insert_one(new_news.model_dump())
@@ -47,15 +43,15 @@ async def create_news(news: CreateNewsSchema):
     raise HTTPException(status_code=400, detail="Ошибка создания новости")
 
 
-@wip_router.get("/", response_model=List[News])
+@router.get("/", response_model=List[News])
 async def list_news(limit: int = Query(50, ge=1), offset: int = 0):
     db = await get_mongo_client()
     news_list = await db["news"].find().skip(offset).limit(limit).to_list(limit)
     return news_list
 
 
-@wip_router.put("/{news_id}", response_model=News)
-async def update_news(news_id: UUID, news: UpdateNewsSchema):
+@router.put("/{news_id}", response_model=News)
+async def update_news(news_id: UUID, news: UpdateNews):
     db = await get_mongo_client()
     updated_news = await db["news"].find_one_and_update(
         {"news_id": news_id},
@@ -67,7 +63,7 @@ async def update_news(news_id: UUID, news: UpdateNewsSchema):
     raise HTTPException(status_code=404, detail="Новость не найдена")
 
 
-@wip_router.delete("/{news_id}/comments/{comment_id}")
+@router.delete("/{news_id}/comments/{comment_id}")
 async def delete_news_comment(news_id: UUID, comment_id: UUID):
     db = await get_mongo_client()
 
@@ -83,7 +79,7 @@ async def delete_news_comment(news_id: UUID, comment_id: UUID):
     raise HTTPException(status_code=404, detail="Комментарий не найден")
 
 
-@wip_router.post("/{news_id}/comment", response_model=Comment)
+@router.post("/{news_id}/comment", response_model=Comment)
 async def add_comment(news_id: UUID, comment: Comment):
     db = await get_mongo_client()
 
@@ -100,7 +96,7 @@ async def add_comment(news_id: UUID, comment: Comment):
     raise HTTPException(status_code=404, detail="Новость не найдена")
 
 
-@wip_router.post("/{news_id}/reaction")
+@router.post("/{news_id}/reaction")
 async def add_reaction(news_id: UUID, reaction: Reaction):
     db = await get_mongo_client()
     

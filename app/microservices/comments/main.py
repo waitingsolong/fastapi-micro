@@ -10,13 +10,7 @@ app = FastAPI(docs_url=   '/comments/docs',
 
 setup_exception_handlers(app)
 
-# # TODO remove
-# from app.microservices.auth.core.mw import AuthMiddleware
-# excluded_paths = ["/auth/login", "/auth/register", "/auth/validate"]
-# app.add_middleware(AuthMiddleware, excluded_paths=excluded_paths)
-
 app.include_router(comments.router)
-app.include_router(comments.wip_router)
 app.include_router(healthcheck.router)
 
 def start_fastapi():

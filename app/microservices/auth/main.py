@@ -1,8 +1,9 @@
+import asyncio
 import threading
 
 from app.utils.handlers import setup_exception_handlers
 from fastapi import FastAPI
-from app.microservices.auth.api.v1 import auth, healthcheck
+from app.microservices.auth.api.v1 import auth, healthcheck, roles
 from app.microservices.auth.grpc.server import serve as grpc_serve
 
 app = FastAPI(docs_url=   '/auth/docs',
@@ -11,11 +12,8 @@ app = FastAPI(docs_url=   '/auth/docs',
 
 setup_exception_handlers(app)
 
-# from app.microservices.auth.core.mw import AuthMiddleware
-# excluded_paths = ["/auth/login", "/auth/register", "/auth/validate"]
-# app.add_middleware(AuthMiddleware, excluded_paths=excluded_paths)
-
 app.include_router(auth.router)
+app.include_router(roles.router)
 app.include_router(healthcheck.router)
 
 def start_fastapi():

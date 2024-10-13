@@ -22,7 +22,6 @@ http {
         listen 443 ssl;
         server_name $SERVER_NAME;
 
-        # mocked
         ssl_certificate /etc/nginx/ssl/selfsigned.crt;       
         ssl_certificate_key /etc/nginx/ssl/selfsigned.key;   
         ssl_dhparam /etc/nginx/ssl/dhparam.pem;              
@@ -73,6 +72,22 @@ http {
         location /comments {
             auth_request /auth/validate;
             proxy_pass http://comments-service:8000;            
+            proxy_intercept_errors off;  
+        }
+
+        # ---------- matches ----------
+
+        location /matches {
+            auth_request /auth/validate;
+            proxy_pass http://matches-service:8000;            
+            proxy_intercept_errors off;  
+        }
+
+        # ---------- users ----------
+
+        location /users {
+            auth_request /auth/validate;
+            proxy_pass http://users-service:8000;            
             proxy_intercept_errors off;  
         }
     }
