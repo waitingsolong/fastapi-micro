@@ -1,7 +1,10 @@
-data/ 
+.data/ 
 .idea/
 .vscode/
 .log
+
+.scripts/
+!.scripts/pg_migrate.py
 
 __pycache__
 *.pyc
@@ -21,6 +24,5 @@ coverage.xml
 *.log
 .git*
 tests
-scripts
 postman
 ./postgres-data

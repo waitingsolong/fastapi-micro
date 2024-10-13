@@ -7,11 +7,11 @@ ask_regenerate_certificates() {
     while true; do
         read -p "Do you want to regenerate SSL certificates? (y/n): " yn
         case $yn in
-            [Yy] ) 
+            [Yy]* ) 
                 regenerate=true
                 break
                 ;;       
-            [Nn] ) 
+            [Nn]* ) 
                 echo "Skipping SSL certificate regeneration."
                 exit 0  
                 ;;      
@@ -20,6 +20,7 @@ ask_regenerate_certificates() {
         esac
     done
 }
+
 
 ask_regenerate_certificates
 

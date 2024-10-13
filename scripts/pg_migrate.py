@@ -3,7 +3,6 @@ import subprocess
 import asyncio
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import create_async_engine
-from sqlalchemy.exc import OperationalError
 from app.microservices.auth.core.config import settings as auth_settings
 from app.microservices.media.core.config import settings as media_settings
 from app.microservices.matches.core.config import settings as matches_settings
@@ -85,29 +84,23 @@ async def apply_initial_migration(microservice):
     """
     Applies the initial migration for the microservice (creates alembic_version and runs the migrations).
     """
-    # Create the first migration if needed
+    print("Running initial migration...")
     if not await run_alembic_revision(microservice, f"Initial migration for {microservice['name']}"):
         print(f"Error: Failed to generate initial migration for {microservice['name']}.")
         return False
     
-    # Apply the migration (alembic upgrade head)
     return await apply_migrations(microservice)
 
 async def apply_migrations(microservice):
-    """
-    Runs the Alembic upgrade command to apply all migrations.
-    """
-    print("Running migrations...")
+    print("Running 'alembic upgrade head'...")
     upgrade_result = subprocess.run(
         ["alembic", "-c", os.path.join(microservice["migrations_path"], "alembic.ini"), "upgrade", "head"],
         stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False
     )
     
-    # Print output
     print(upgrade_result.stdout.decode())
     print(upgrade_result.stderr.decode())
     
-    # Check if the migration was successful
     if upgrade_result.returncode != 0:
         print(f"Error: Migration failed for {microservice['name']}.")
         return False
@@ -119,9 +112,8 @@ async def main():
     for microservice in microservices:
         await create_database_if_not_exists(microservice["pg_uri"])
         print(f"Waiting for database {microservice['name']} to be ready...")
-        await asyncio.sleep(2)  # Ждем 2 секунды после создания каждой базы данных
+        await asyncio.sleep(2)
 
-    # Выполняем миграции последовательно
     for microservice in microservices:
         print(f"\nStarting migration for {microservice['name']}")
         success = False
@@ -169,4 +161,5 @@ async def create_and_migrate():
     await main()
     
 if __name__ == "__main__":
+    print(f"Specified microservices: {microservices}")
     asyncio.run(create_and_migrate())

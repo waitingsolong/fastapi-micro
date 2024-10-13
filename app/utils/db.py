@@ -32,7 +32,7 @@ async def create_database_if_not_exists(postgres_uri):
     database_name = match.group(1)  # Get the database name (e.g., 'auth')
 
     # Create a new URI for connecting to the default postgres database
-    default_uri = re.sub(r'@[^/]+/', '@localhost/', postgres_uri).replace(database_name, "postgres")
+    default_uri = re.sub(r'@[^/]+/', '@db/', postgres_uri).replace(database_name, "postgres")
 
     # Create an engine for connecting to the default database
     default_engine = create_async_engine(default_uri, future=True, echo=True, isolation_level="AUTOCOMMIT")
