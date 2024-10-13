@@ -6,22 +6,25 @@ from app.microservices.auth.schemas.auth import FakeToken
 
 # oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
-async def get_token_data(request: Request):
-    # assert: user admin must persist in db
-    if settings.DISABLE_AUTH:
+async def get_token_data(request: Request, disableAuth: bool = True):
+    if disableAuth:
         return FakeToken().model_dump()
-    
-    auth_header = request.headers.get("Authorization")
-    if not auth_header:
-        raise HTTPException(status_code=401, detail="Authorization header missing")
-    
-    token = auth_header.split(" ")[1] if " " in auth_header else None
+
+    token = request.cookies.get("access_token")
     if not token:
-        raise HTTPException(status_code=401, detail="Invalid or missing token")
+        raise HTTPException(status_code=401, detail="Access token missing from cookies")
     
+    # auth_header = request.headers.get("Authorization")
+    # if not auth_header:
+    #     raise HTTPException(status_code=401, detail="Authorization header missing")
+
+    # token = auth_header.split(" ")[1] if " " in auth_header else None
+    # if not token:
+    #     raise HTTPException(status_code=401, detail="Invalid or missing token")
+
     try:
         token_data = verify_token(token)
     except HTTPException as e:
         return JSONResponse(status_code=e.status_code, content={"detail": e.detail})
-    
+
     return token_data

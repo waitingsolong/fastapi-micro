@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# echo "Disabled. Placeholder for not-mocked cerficates"
+# echo "Disabled. Placeholder for not-mocked certificates"
 # exit 1
 
 ask_regenerate_certificates() {
@@ -8,7 +8,7 @@ ask_regenerate_certificates() {
         read -p "Do you want to regenerate SSL certificates? (y/n): " yn
         case $yn in
             [Yy]* ) 
-                regenerate=true
+                echo "Proceeding to regenerate SSL certificates."
                 break
                 ;;       
             [Nn]* ) 
@@ -21,27 +21,26 @@ ask_regenerate_certificates() {
     done
 }
 
-
 ask_regenerate_certificates
 
 if [ -f "$CERT_FILE" ]; then
-  sudo rm "$CERT_FILE"
-  echo "Old certificate removed."
+    sudo rm "$CERT_FILE"
+    echo "Old certificate removed."
 fi
 
 if [ -f "$KEY_FILE" ]; then
-  sudo rm "$KEY_FILE"
-  echo "Old key file removed."
+    sudo rm "$KEY_FILE"
+    echo "Old key file removed."
 fi
 
 if [ -f "$DH_FILE" ]; then
-  sudo rm "$DH_FILE"
-  echo "Old DH parameters removed."
+    sudo rm "$DH_FILE"
+    echo "Old DH parameters removed."
 fi
 
 # assert: SERVER_NAME is set
 if [ -f ".env" ]; then
-  export $(cat .env | xargs)
+    export $(cat .env | xargs)
 fi
 
 CERT_PATH="./data/cert"

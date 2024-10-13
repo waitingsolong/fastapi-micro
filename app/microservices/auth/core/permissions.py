@@ -2,6 +2,7 @@ from fastapi import HTTPException, Depends
 from app.microservices.auth.core.deps import get_token_data
 from app.microservices.auth.core.roles import roles
 
+# TODO get_token_data changed
 def require_permission(permission: str):
     def permission_decorator(token: str = Depends(get_token_data)):
         user_role = token.get("role")

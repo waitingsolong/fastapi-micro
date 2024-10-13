@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Request, Response, HTTPException, Depends
 from datetime import timedelta
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.microservices.auth.utils.db import get_db   
@@ -56,7 +56,7 @@ async def register(user: RegisterRequest, db: AsyncSession = Depends(get_db)):
     )
 
 @router.post("/login", response_model=TokenResponse)
-async def login(user: LoginRequest, db: AsyncSession = Depends(get_db)):
+async def login(user: LoginRequest, response: Response, db: AsyncSession = Depends(get_db)):
     user_in_db = await get_user_by_username(db, username=user.username)
     if not user_in_db or not verify_password(user.password, user_in_db.hashed_password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
@@ -73,15 +73,15 @@ async def login(user: LoginRequest, db: AsyncSession = Depends(get_db)):
         expires_delta=refresh_token_expires
     )
 
-    return TokenResponse(
-        access_token=access_token,
-        refresh_token=refresh_token,
-        token_type="bearer"
-    )
+    response.set_cookie(key="access_token", value=access_token, httponly=True, secure=True, samesite='Strict', expires=access_token_expires.total_seconds())
+    response.set_cookie(key="refresh_token", value=refresh_token, httponly=True, secure=True, samesite='Strict', expires=refresh_token_expires.total_seconds())
+
+    return {"message": "Login successful"}
 
 @router.post("/refresh", response_model=TokenResponse)
-async def refresh(refresh_request: RefreshRequest):
-    token_data = verify_token(refresh_request.refresh_token)
+async def refresh(request: Request, response: Response):
+    refresh_token = request.cookies.get("refresh_token")
+    token_data = verify_token(refresh_token)
     if token_data is None:
         raise HTTPException(status_code=401, detail="Invalid token")
 
@@ -90,13 +90,14 @@ async def refresh(refresh_request: RefreshRequest):
         data={"sub": token_data["sub"], "role": token_data["role"]}, 
         expires_delta=access_token_expires
     )
-    return TokenResponse(
-        access_token=new_access_token, 
-        token_type="bearer"
-    )
+
+    response.set_cookie(key="access_token", value=new_access_token, httponly=True, secure=True, samesite='Strict', expires=access_token_expires.total_seconds())
+
+    return {"access_token": new_access_token, "token_type": "bearer"}
 
 @router.get("/me", response_model=UserResponse)
-async def check_me(token: dict = Depends(get_token_data), db: AsyncSession = Depends(get_db)):
+async def check_me(request: Request, db: AsyncSession = Depends(get_db)):
+    token = await get_token_data(request)
     user = await get_user_by_username(db, username=token["sub"])
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -107,6 +108,10 @@ async def check_me(token: dict = Depends(get_token_data), db: AsyncSession = Dep
         role=user.role.value
     )
 
+@router.post("/validate-real", response_model=TokenData)
+async def real_validate_auth(request: Request):
+    return await get_token_data(request, disableAuth=False)
+
 @router.post("/validate", response_model=TokenData)
-async def validate_auth(token_data: TokenData = Depends(get_token_data)):  
-    return token_data  
+async def validate_auth(request: Request):
+    return await get_token_data(request)

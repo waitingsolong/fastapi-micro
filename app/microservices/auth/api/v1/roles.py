@@ -1,5 +1,5 @@
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.microservices.auth.core.deps import get_token_data
 from app.microservices.auth.core.permissions import require_role
@@ -28,7 +28,8 @@ async def admin_endpoint(token: dict = Depends(require_role("admin"))):
     return {"message": "Welcome, admin!"}
 
 @router.get("/mine")
-async def get_my_role(token: dict = Depends(get_token_data)):
+async def get_my_role(request: Request):
+    token = await get_token_data(request)
     return {"role": token.get("role")}
 
 @router.get("/role/by_username/{username}", response_model=dict)
