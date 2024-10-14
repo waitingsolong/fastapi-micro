@@ -1,6 +1,6 @@
 import threading
 
-from app.utils.handlers import setup_exception_handlers
+from app.utils.handlers import add_cors_middleware, setup_exception_handlers
 from fastapi import FastAPI
 from app.microservices.matches.api.v1 import matches, healthcheck
 
@@ -8,6 +8,7 @@ app = FastAPI(docs_url=   '/matches/docs',
               redoc_url=  '/matches/redoc',
               openapi_url='/matches/openapi.json')
 
+# add_cors_middleware
 setup_exception_handlers(app)
 
 app.include_router(matches.router)

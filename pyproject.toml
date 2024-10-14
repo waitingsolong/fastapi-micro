@@ -24,6 +24,8 @@ python-jose = "^3.3.0"
 motor = "^3.6.0"
 aiofiles = "^24.1.0"
 python-multipart = "^0.0.12"
+yadisk = "^3.1.0"
+requests = "^2.32.3"
 
 
 [tool.poetry.group.dev.dependencies]

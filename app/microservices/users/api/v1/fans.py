@@ -10,7 +10,7 @@ router = APIRouter(
     tags=["fans"]
 )
 
-@router.post("/fans/", response_model=FanResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=FanResponse, status_code=status.HTTP_201_CREATED)
 async def create_fan(fan: FanCreate, db: AsyncSession = Depends(get_db)):
     new_fan = Fan(**fan.model_dump())
     db.add(new_fan)
@@ -19,7 +19,7 @@ async def create_fan(fan: FanCreate, db: AsyncSession = Depends(get_db)):
     return new_fan
 
 
-@router.get("/fans/{fan_id}", response_model=FanResponse)
+@router.get("/{fan_id}", response_model=FanResponse)
 async def get_fan(fan_id: UUID4, db: AsyncSession = Depends(get_db)):
     fan = await db.get(Fan, fan_id)
     if fan is None:
@@ -27,7 +27,7 @@ async def get_fan(fan_id: UUID4, db: AsyncSession = Depends(get_db)):
     return fan
 
 
-@router.put("/fans/{fan_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.put("/{fan_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def update_fan(fan_id: UUID4, fan: FanUpdate, db: AsyncSession = Depends(get_db)):
     db_fan = await db.get(Fan, fan_id)
     if db_fan is None:
@@ -40,7 +40,7 @@ async def update_fan(fan_id: UUID4, fan: FanUpdate, db: AsyncSession = Depends(g
     return
 
 
-@router.delete("/fans/{fan_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{fan_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_fan(fan_id: UUID4, db: AsyncSession = Depends(get_db)):
     fan = await db.get(Fan, fan_id)
     if fan is None:
@@ -51,7 +51,7 @@ async def delete_fan(fan_id: UUID4, db: AsyncSession = Depends(get_db)):
     return
 
 
-@router.get("/fans/", response_model=FanListResponse)
+@router.get("/", response_model=FanListResponse)
 async def list_fans(skip: int = 0, limit: int = 10, db: AsyncSession = Depends(get_db)):
     query = await db.execute(f"SELECT * FROM fans OFFSET {skip} LIMIT {limit}")
     fans = query.fetchall()

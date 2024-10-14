@@ -1,5 +1,5 @@
 import threading
-from app.utils.handlers import setup_exception_handlers
+from app.utils.handlers import add_cors_middleware, setup_exception_handlers
 from fastapi import FastAPI
 from app.microservices.news.api.v1 import news, healthcheck
 
@@ -7,6 +7,7 @@ app = FastAPI(docs_url=   '/news/docs',
               redoc_url=  '/news/redoc',
               openapi_url='/news/openapi.json')
 
+# add_cors_middleware
 setup_exception_handlers(app)
 
 app.include_router(news.router)

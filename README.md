@@ -1,6 +1,20 @@
 ## Description
 Microservices on FastAPI
 
+## Pre-setup
+1. Convert Line Endings
+Run dos2unix to ensure that the scripts have the correct line endings:
+```bash
+dos2unix -R ./scripts/*.sh
+```
+
+2. Add Environment Variable
+Add the following line to ./app/microservices/media/env.py:
+```python
+YANDEX_DISK_API_KEY=...
+```
+Else media will be stored in filesystem in folder data/media/
+
 ## Steps to Run
 
 ### Run the command
@@ -47,7 +61,9 @@ sudo docker-compose up --build -d
 
 ### Notes
 
-- Ensure that ports 80 and 443 on the host are not being used by other processes.
+- Ensure that ports 80 and 443 on the host are not being used by other processes
+- It sometimes necessary restart ./scripts/setup_ssl_mock.sh
+- When writing nginx.conf just copy final result to nginx.conf.template and replace your host (e.g. "localhost") with $SERVER_NAME
 
 ## How to Create a New Microservice
 

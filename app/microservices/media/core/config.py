@@ -11,6 +11,8 @@ class Settings(BaseSettings):
     POSTGRES_PASSWORD: Optional[SecretStr] = None
     POSTGRES_URI: Optional[str] = "postgresql+asyncpg://postgres:@db/media"
     
+    YANDEX_DISK_API_KEY: Optional[str]
+    
     # defaulted 
     ROOT_DIR: Path = Path(__file__).resolve().parent.parent.parent.parent.parent
     print(f"ROOT_DIR: {ROOT_DIR}")
@@ -26,6 +28,7 @@ def init_settings():
         settings.POSTGRES_URI = f"postgresql+asyncpg://{settings.POSTGRES_USER}:{settings.POSTGRES_PASSWORD.get_secret_value()}@{settings.POSTGRES_HOST}/{settings.POSTGRES_DB}"
     elif not settings.POSTGRES_URI:
         logging.error("Media DB is not initialized. Please provide POSTGRES_URI in .env file")
+    
     return settings
 
 settings = init_settings()

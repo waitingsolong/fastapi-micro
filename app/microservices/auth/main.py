@@ -1,7 +1,7 @@
 import asyncio
 import threading
 
-from app.utils.handlers import setup_exception_handlers
+from app.utils.handlers import add_cors_middleware, setup_exception_handlers
 from fastapi import FastAPI
 from app.microservices.auth.api.v1 import auth, healthcheck, roles
 from app.microservices.auth.grpc.server import serve as grpc_serve
@@ -10,6 +10,7 @@ app = FastAPI(docs_url=   '/auth/docs',
               redoc_url=  '/auth/redoc',
               openapi_url='/auth/openapi.json')
 
+# add_cors_middleware
 setup_exception_handlers(app)
 
 app.include_router(auth.router)

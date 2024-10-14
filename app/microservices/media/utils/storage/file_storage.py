@@ -7,6 +7,8 @@ MEDIA_FOLDER = os.path.join(settings.ROOT_DIR, "data/media/")
 
 if not os.path.exists(MEDIA_FOLDER):
     os.makedirs(MEDIA_FOLDER)
+    
+    os.makedirs(MEDIA_FOLDER, exist_ok=True)
 
 async def save_media_file(file: UploadFile) -> str:
     file_path = os.path.join(MEDIA_FOLDER, file.filename)
