@@ -1,0 +1,70 @@
+[ RUNNING ]
+
+sudo su
+
+docker-compose up --build -d
+docker-compose up -d <>
+docker-compose restart <>
+
+docker-compose ps
+docker ps -a -f "status=exited"
+ 
+docker-compose logs <>
+
+chown -R root:root /etc/nginx/ssl
+chmod -R 777 /etc/nginx/ssl/
+chmod -R 777 .
+
+alembic -c migrations/auth/alembic.ini revision --autogenerate -m "init"
+
+alembic upgrade head
+
+dos2unix <>
+
+eval "$(register-python-argcomplete docker-compose)"
+
+[ local env ]
+
+sudo apt install python3-pip
+sudo apt install python3-venv
+
+python3 -m venv venv
+source venv/bin/activate
+pip install poetry
+
+poetry add --group gc sqlalchemy
+poetry install --with gc
+
+[ migr by hand ]
+
+docker-compose exec db psql -U postgres -d auth
+
+CREATE TABLE alembic_version (
+    version_num VARCHAR(32) NOT NULL PRIMARY KEY
+);
+
+\q
+
+docker-compose up db-service
+
+alembic -c migrations/auth/alembic.ini revision --autogenerate -m "init"
+
+alembic -c migrations/auth/alembic.ini upgrade head
+
+
+[ gcloud ]
+
+gcloud auth login
+gcloud config set project disco-park-438008-s0
+gcloud compute instances list
+gcloud compute ssh kokoc --zone=europe-central2-c
+
+[ docker full clean ]
+docker stop $(docker ps -aq) && docker rm $(docker ps -aq) && docker rmi $(docker images -q) && docker volume rm $(docker volume ls -q) && docker network prune -f && docker system prune -a --volumes -f
+
+
+[ others ] 
+
+sudo apt update
+sudo apt install postgresql-client
+which psql

@@ -64,6 +64,8 @@ sudo docker-compose up --build -d
 - Ensure that ports 80 and 443 on the host are not being used by other processes
 - It sometimes necessary restart ./scripts/setup_ssl_mock.sh
 - When writing nginx.conf just copy final result to nginx.conf.template and replace your host (e.g. "localhost") with $SERVER_NAME
+- You have db-migrate service and corresponding script in ./scripts/pg_migrate.py. It just runs all alembic migrations under the migrations/ folder.
+If anything went wrong you can: check logs/rerun script/run migrations manually following [ migr by hand ] topic in docs/save.txt
 
 ## How to Create a New Microservice
 
